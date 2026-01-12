@@ -5,104 +5,145 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>梓帆 & 佩芩 婚禮邀請函</title>
     <style>
+        :root {
+            --bg-color: #8b0000;
+            --gold: #d4af37;
+        }
+
         body {
             margin: 0;
-            padding: 0;
-            background-color: #8b0000;
+            background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             font-family: "Microsoft JhengHei", sans-serif;
-            color: white;
+            overflow-x: hidden;
         }
 
-        .card-container {
-            perspective: 1500px;
-            width: 90vw;
-            max-width: 350px;
-            aspect-ratio: 350 / 500;
-            margin: 20px 0;
-            cursor: pointer;
+        /* 3D 場景設定 */
+        .scene {
+            width: 320px;
+            height: 457px; /* 依照圖片比例 */
+            perspective: 1200px;
+            margin: 30px 0;
         }
 
+        /* 卡片主體 */
         .card {
             width: 100%;
             height: 100%;
             position: relative;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
+            transform-origin: left center; /* 關鍵：從左側翻開 */
         }
 
-        .card.is-flipped { transform: rotateY(180deg); }
+        /* 當點擊時，向左後方旋轉 180 度 */
+        .card.is-flipped {
+            transform: translateX(100%) rotateY(-180deg);
+        }
 
         .card-face {
             position: absolute;
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        .card-back { transform: rotateY(180deg); }
+        .card-front {
+            z-index: 2;
+        }
 
-        img { width: 100%; height: 100%; object-fit: cover; }
+        /* 背面需要先轉 180 度，這樣翻過來才會是正的 */
+        .card-back {
+            transform: rotateY(180deg);
+            z-index: 1;
+        }
 
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            display: block;
+        }
+
+        /* 按鈕區域 */
         .btn-group {
             display: flex;
             flex-direction: column;
             gap: 15px;
-            width: 80%;
-            max-width: 300px;
-            margin-bottom: 30px;
+            width: 280px;
+            margin-bottom: 40px;
+            z-index: 10;
         }
 
         .btn {
-            padding: 12px;
-            background-color: #d4af37;
-            color: #8b0000;
+            padding: 14px;
+            background-color: var(--gold);
+            color: var(--bg-color);
             text-decoration: none;
             text-align: center;
             font-weight: bold;
-            border-radius: 25px;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             transition: 0.3s;
         }
 
-        .btn:hover { background-color: #f1d592; transform: translateY(-2px); }
+        .btn:hover {
+            background-color: #f1d592;
+            transform: translateY(-2px);
+        }
+
+        .hint {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="card-container" onclick="this.querySelector('.card').classList.toggle('is-flipped')">
-        <div class="card">
+    <div class="scene" onclick="document.getElementById('wedding-card').classList.toggle('is-flipped')">
+        <div class="card" id="wedding-card">
             <div class="card-face card-front">
-                <img src="https://files.catbox.moe/oatv9s.png" alt="喜帖正面">
+                <img src="front.png" alt="喜帖正面">
             </div>
             <div class="card-face card-back">
-                <img src="https://files.catbox.moe/y86g8s.png" alt="喜帖背面">
+                <img src="back.png" alt="喜帖背面">
             </div>
         </div>
     </div>
 
-    <p style="opacity: 0.8; font-size: 0.9rem; margin-bottom: 20px;">👆 點擊卡片可以翻轉喔！</p>
+    <p class="hint">✨ 點擊喜帖 翻開驚喜 ✨</p>
 
     <div class="btn-group">
         <a href="https://forms.gle/SUcVAoy5zmQ31PSw9" target="_blank" class="btn">💍 填寫出席意願表單</a>
-        <a href="https://maps.app.goo.gl/y6N8v7p9m87f9R6C9" target="_blank" class="btn">📍 導航至漢來巨蛋</a>
+        <a href="https://www.google.com/maps/search/?api=1&query=高雄漢來巨蛋9樓" target="_blank" class="btn">📍 導航至漢來巨蛋</a>
     </div>
 
-    <audio id="bgMusic" loop autoplay>
-        <source src="https://files.catbox.moe/rbtg8r.mp3" type="audio/mpeg">
+    <audio id="bgMusic" loop>
+        <source src="music.mp3" type="audio/mpeg">
     </audio>
 
     <script>
-        // 解決自動播放限制
+        // 使用者第一次點擊頁面（翻牌）時播放音樂
         window.addEventListener('click', () => { 
             const audio = document.getElementById('bgMusic');
-            if (audio.paused) audio.play();
+            if (audio.paused) {
+                audio.play();
+            }
         }, { once: true });
     </script>
 </body>
