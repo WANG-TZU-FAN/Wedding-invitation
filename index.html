@@ -20,10 +20,11 @@
             justify-content: center;
             min-height: 100vh;
             font-family: "Microsoft JhengHei", sans-serif;
-            overflow-x: hidden; /* 防止左右滑動 */
+            overflow-x: hidden;
+            touch-action: manipulation;
         }
 
-        /* 右上角音樂開關 */
+        /* 右上角音樂控制 */
         #music-control {
             position: fixed;
             top: 20px;
@@ -55,7 +56,7 @@
             to { transform: rotate(360deg); }
         }
 
-        /* 翻轉卡片容器 - 中心軸旋轉 */
+        /* 卡片容器 */
         .card-container {
             perspective: 1500px;
             width: 320px;
@@ -72,7 +73,6 @@
             transform-style: preserve-3d;
         }
 
-        /* 中心旋轉，不產生位移 */
         .card.is-flipped {
             transform: rotateY(180deg);
         }
@@ -84,25 +84,16 @@
             backface-visibility: hidden;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            overflow: hidden;
         }
 
-        /* 確保正面是王梓帆 & 吳佩芩 */
-        .card-front {
-            z-index: 2;
-        }
-
-        /* 確保背面是婚宴資訊，並預先旋轉 */
-        .card-back {
-            transform: rotateY(180deg);
-            z-index: 1;
-        }
+        .card-front { z-index: 2; }
+        .card-back { transform: rotateY(180deg); z-index: 1; }
 
         img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            display: block;
+            border-radius: inherit;
         }
 
         .btn-group {
@@ -110,7 +101,6 @@
             flex-direction: column;
             gap: 15px;
             width: 280px;
-            margin-top: 10px;
             margin-bottom: 40px;
         }
 
@@ -126,16 +116,18 @@
             transition: 0.3s;
         }
 
+        .btn:active {
+            transform: scale(0.98);
+        }
+
         .hint {
             color: var(--gold);
             font-size: 0.85rem;
             margin-bottom: 15px;
-            letter-spacing: 1px;
-            opacity: 0.9;
         }
     </style>
 </head>
-<body>
+<body onclick="startMusic()">
 
     <div id="music-control" onclick="toggleMusic(event)">
         <svg class="music-icon rotating" id="music-svg" viewBox="0 0 24 24">
@@ -143,13 +135,13 @@
         </svg>
     </div>
 
-    <div class="card-container" onclick="document.getElementById('main-card').classList.toggle('is-flipped')">
+    <div class="card-container" onclick="flipCard()">
         <div class="card" id="main-card">
             <div class="card-face card-front">
-                <img src="front.png?v=2" alt="喜帖正面">
+                <img src="front.png?v=4" alt="喜帖正面">
             </div>
             <div class="card-face card-back">
-                <img src="back.png?v=2" alt="喜帖背面">
+                <img src="back.png?v=4" alt="喜帖背面">
             </div>
         </div>
     </div>
@@ -158,28 +150,34 @@
 
     <div class="btn-group">
         <a href="https://forms.gle/SUcVAoy5zmQ31PSw9" target="_blank" class="btn">💍 填寫出席意願表單</a>
-        <a href="https://maps.app.goo.gl/oYvYp8nS9VpG5rWz5" target="_blank" class="btn">📍 導航至漢來巨蛋</a>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=高雄漢來大飯店巨蛋會館" target="_blank" class="btn">📍 導航至漢來巨蛋</a>
     </div>
 
-    <audio id="bgMusic" loop>
+    <audio id="bgMusic" loop preload="auto">
         <source src="music.mp3" type="audio/mpeg">
     </audio>
 
     <script>
         const audio = document.getElementById('bgMusic');
         const musicSvg = document.getElementById('music-svg');
+        let hasStarted = false;
 
-        // 第一次點擊頁面任何處（包含翻牌）觸發音樂
-        document.body.addEventListener('click', () => {
-            if (audio.paused) {
-                audio.play().catch(e => console.log("Audio play blocked"));
-                musicSvg.classList.add('rotating');
+        function startMusic() {
+            if (!hasStarted) {
+                audio.play().then(() => {
+                    hasStarted = true;
+                    musicSvg.classList.add('rotating');
+                }).catch(err => console.log("等待手動點擊..."));
             }
-        }, { once: true });
+        }
 
-        // 音樂手動開關
+        function flipCard() {
+            document.getElementById('main-card').classList.toggle('is-flipped');
+            startMusic();
+        }
+
         function toggleMusic(e) {
-            e.stopPropagation(); // 防止點擊音樂按鈕時觸發卡片翻轉
+            e.stopPropagation();
             if (audio.paused) {
                 audio.play();
                 musicSvg.classList.add('rotating');
