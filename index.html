@@ -8,22 +8,22 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #8b0000; /* 深紅色背景 */
+            background-color: #8b0000;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             font-family: "Microsoft JhengHei", sans-serif;
-            overflow-x: hidden;
+            color: white;
         }
 
-        /* 翻頁卡片容器 */
         .card-container {
             perspective: 1500px;
-            width: 350px;
-            height: 500px;
-            margin-top: 20px;
+            width: 90vw;
+            max-width: 350px;
+            aspect-ratio: 350 / 500;
+            margin: 20px 0;
             cursor: pointer;
         }
 
@@ -31,75 +31,53 @@
             width: 100%;
             height: 100%;
             position: relative;
-            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
         }
 
-        .card.is-flipped {
-            transform: rotateY(180deg);
-        }
+        .card.is-flipped { transform: rotateY(180deg); }
 
         .card-face {
             position: absolute;
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 10px;
+            border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             overflow: hidden;
         }
 
-        .card-front {
-            background-color: #fff;
+        .card-back { transform: rotateY(180deg); }
+
+        img { width: 100%; height: 100%; object-fit: cover; }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 80%;
+            max-width: 300px;
+            margin-bottom: 30px;
         }
 
-        .card-back {
-            background-color: #fff;
-            transform: rotateY(180deg);
-        }
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* 按鈕樣式 */
-        .form-button {
-            margin-top: 40px;
-            padding: 15px 40px;
-            background-color: #d4af37; /* 金色 */
+        .btn {
+            padding: 12px;
+            background-color: #d4af37;
             color: #8b0000;
             text-decoration: none;
+            text-align: center;
             font-weight: bold;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: transform 0.3s;
+            border-radius: 25px;
+            transition: 0.3s;
         }
 
-        .form-button:hover {
-            transform: scale(1.05);
-            background-color: #f1d592;
-        }
-
-        /* 音樂控制 */
-        .audio-controls {
-            margin-top: 20px;
-            color: white;
-        }
-        
-        .hint {
-            color: rgba(255,255,255,0.7);
-            margin-top: 10px;
-            font-size: 0.9rem;
-        }
+        .btn:hover { background-color: #f1d592; transform: translateY(-2px); }
     </style>
 </head>
 <body>
 
-    <div class="card-container" onclick="flipCard()">
-        <div class="card" id="weddingCard">
+    <div class="card-container" onclick="this.querySelector('.card').classList.toggle('is-flipped')">
+        <div class="card">
             <div class="card-face card-front">
                 <img src="https://files.catbox.moe/oatv9s.png" alt="喜帖正面">
             </div>
@@ -109,32 +87,23 @@
         </div>
     </div>
 
-    <p class="hint">點擊卡片即可翻面</p>
+    <p style="opacity: 0.8; font-size: 0.9rem; margin-bottom: 20px;">👆 點擊卡片可以翻轉喔！</p>
 
-    <div class="audio-controls">
-        <audio id="bgMusic" loop autoplay>
-            <source src="https://files.catbox.moe/rbtg8r.mp3" type="audio/mpeg">
-            您的瀏覽器不支持音頻播放。
-        </audio>
+    <div class="btn-group">
+        <a href="https://forms.gle/SUcVAoy5zmQ31PSw9" target="_blank" class="btn">💍 填寫出席意願表單</a>
+        <a href="https://maps.app.goo.gl/y6N8v7p9m87f9R6C9" target="_blank" class="btn">📍 導航至漢來巨蛋</a>
     </div>
 
-    <a href="https://forms.gle/SUcVAoy5zmQ31PSw9" target="_blank" class="form-button">
-        填寫出席意願表單
-    </a>
+    <audio id="bgMusic" loop autoplay>
+        <source src="https://files.catbox.moe/rbtg8r.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
-        function flipCard() {
-            document.getElementById('weddingCard').classList.toggle('is-flipped');
-        }
-
-        // 處理多數瀏覽器限制自動播放的問題
-        window.addEventListener('click', function() {
+        // 解決自動播放限制
+        window.addEventListener('click', () => { 
             const audio = document.getElementById('bgMusic');
-            if (audio.paused) {
-                audio.play();
-            }
+            if (audio.paused) audio.play();
         }, { once: true });
     </script>
 </body>
-
 </html>
